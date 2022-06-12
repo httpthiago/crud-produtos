@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta charset="utf-8" />
+	<title>Produtos</title>
+</h:head>
+<h:body>
+	<f:metadata>
+		<f:viewAction action="#{categoriasBean.consultarCategorias}"></f:viewAction>
+	</f:metadata>
+	<p:panel>
+		<h:link value="Produtos" outcome="Produtos"></h:link>
+		<h:link value="Categorias" outcome="Categorias"></h:link>
+	</p:panel>
+	<h1>Categorias</h1>
+	<h:form id="frm">
+		<p:messages id="msgs"></p:messages>
+		<p:toolbar>
+			<f:facet name="left">
+				<p:commandButton value="Nova"
+					oncomplete="PF('categoriaDialog').show()"
+					action="#{categoriasBean.prepararNovoCadastro}" process="@this"
+					update="categoria-dialog"></p:commandButton>
+			</f:facet>
+		</p:toolbar>
+
+		<p:dataTable id="categoria-table"
+			value="#{categoriasBean.todasCategorias}" var="categoria">
+			<p:column headerText="Categoria" width="500">
+				<h:outputText value="#{categoria.descricao}"></h:outputText>
+			</p:column>
+			<p:column>
+				<p:commandButton title="Editar" icon="ui-icon-pencil"
+					process="@this" update="@form"
+					oncomplete="PF('categoriaDialog').show()">
+					<f:setPropertyActionListener value="#{categoria}"
+						target="#{categoriasBean.categoria}"></f:setPropertyActionListener>
+				</p:commandButton>
+				<p:commandButton title="Excluir" process="@this"
+					icon="ui-icon-trash" update="@form"
+					action="#{categoriasBean.removerCategoria}">
+					<p:confirm header="Excluir categoria"
+						message="Tem certeza que deseja remover a categoria?"
+						icon="pi pi-exclamation-triangle" />
+					<f:setPropertyActionListener value="#{categoria}"
+						target="#{categoriasBean.categoria}"></f:setPropertyActionListener>
+				</p:commandButton>
+			</p:column>
+		</p:dataTable>
+
+		<p:dialog id="categoria-dialog" widgetVar="categoriaDialog"
+			header="Nova categoria" modal="true" resizable="false"
+			draggable="false">
+			<p:messages id="msgs-dialog"></p:messages>
+			<h:panelGrid columns="2" id="categoria-panel">
+				<p:outputLabel value="Nome da categoria" for="descricaoID" />
+				<p:inputText id="descricaoID"
+					value="#{categoriasBean.categoria.descricao}"></p:inputText>
+
+				<p:commandButton value="Cadastrar" process="categoria-dialog"
+					action="#{categoriasBean.cadastrarCategoria}"
+					update="categoria-panel msgs-dialog"
+					oncomplete="if (!args.validationFailed) PF('categoriaDialog').hide()"></p:commandButton>
+			</h:panelGrid>
+		</p:dialog>
+
+		<p:confirmDialog global="true">
+			<p:commandButton value="Sim" type="button"
+				styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+			<p:commandButton value="Não" type="button"
+				styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+		</p:confirmDialog>
+	</h:form>
+
+</h:body>
+</html>

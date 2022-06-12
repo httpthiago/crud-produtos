@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta charset="utf-8" />
+	<title>Produtos</title>
+</h:head>
+<h:body>
+	<f:metadata>
+		<f:viewAction action="#{produtosBean.consultar}"></f:viewAction>
+	</f:metadata>
+	<p:panel>
+		<h:link value="Produtos" outcome="Produtos"></h:link>
+		<h:link value="Categorias" outcome="Categorias"></h:link>
+	</p:panel>
+	<h1>Produtos</h1>
+
+	<h:form id="filtro-frm">
+		<h2>Pesquisar</h2>
+		<h:panelGrid columns="2" styleClass="showcase-text-align-center">
+			<p:outputLabel value="SKU" for="skuPesquisaID"></p:outputLabel>
+			<p:inputText type="number" id="skuPesquisaID"
+				value="#{produtosBean.idSku}"></p:inputText>
+
+			<p:outputLabel value="Nome" for="nomePesquisaID"></p:outputLabel>
+			<p:inputText id="nomePesquisaID" value="#{produtosBean.nomePesquisa}"></p:inputText>
+		</h:panelGrid>
+
+		<p:toolbar id="toolbar">
+			<f:facet name="left">
+				<p:commandButton value="Pesquisar"
+					actionListener="#{produtosBean.pesquisar}"
+					update=":frm:produto-table :frm:msgs">
+				</p:commandButton>
+			</f:facet>
+			<f:facet name="right">
+				<p:commandButton value="Novo"
+					oncomplete="PF('produtoDialog').show()" process="@this"
+					actionListener="#{produtosBean.prepararNovoCadastro}"
+					update=":frm:produto-dialog"></p:commandButton>
+			</f:facet>
+		</p:toolbar>
+
+	</h:form>
+
+	<h:form id="frm">
+		<p:messages id="msgs"></p:messages>
+
+
+		<p:dataTable id="produto-table"
+			emptyMessage="Nenhum produto encontrado"
+			value="#{produtosBean.todosProdutos}" var="produto"
+			rowKey="#{produto.idSku}">
+
+			<p:column headerText="SKU" sortBy="#{produto.idSku}">
+				<h:outputText value="#{produto.idSku}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Nome" sortBy="#{produto.nome}">
+				<h:outputText value="#{produto.nome}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Categoria"
+				sortBy="#{produto.categoria.descricao}">
+				<h:outputText value="#{produto.categoria.descricao}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Valor unitário" sortBy="#{produto.valor}">
+				<h:outputText converter="dinheiro" value="#{produto.valor}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Estoque" sortBy="#{produto.estoque}">
+				<h:outputText value="#{produto.estoque}"></h:outputText>
+			</p:column>
+
+			<p:column>
+				<p:commandButton title="Editar" icon="ui-icon-pencil"
+					process="@this" update="@form"
+					oncomplete="if(!args.validationFailed) PF('produtoDialog').show()">
+
+					<f:setPropertyActionListener value="#{produto}"
+						target="#{produtosBean.produto}"></f:setPropertyActionListener>
+				</p:commandButton>
+				<p:commandButton title="Excluir" process="@this"
+					icon="ui-icon-trash" update="@form"
+					action="#{produtosBean.removerProduto}">
+					<p:confirm header="Excluir"
+						message="Tem certeza que deseja remover o produto??"
+						icon="pi pi-exclamation-triangle" />
+					<f:setPropertyActionListener value="#{produto}"
+						target="#{produtosBean.produto}"></f:setPropertyActionListener>
+				</p:commandButton>
+			</p:column>
+		</p:dataTable>
+
+		<p:dialog id="produto-dialog" widgetVar="produtoDialog"
+			header="Novo produto" modal="true" draggable="false"
+			resizable="false">
+
+			<p:messages id="msgs-dialog"></p:messages>
+			<h:panelGrid columns="2" id="produto-panel">
+				<p:outputLabel value="Nome do produto" for="nomeID" />
+				<p:inputText id="nomeID" value="#{produtosBean.produto.nome}"></p:inputText>
+
+				<p:outputLabel value="Valor" for="valorID" />
+				<p:inputText type="number" id="valorID"
+					value="#{produtosBean.produto.valor}"></p:inputText>
+
+				<p:outputLabel value="Estoque" for="estoqueID" />
+				<p:inputText type="number" id="estoqueID"
+					value="#{produtosBean.produto.estoque}"></p:inputText>
+
+				<p:outputLabel value="Categoria" for="categoriaID" />
+				<p:selectOneMenu id="categoriaID"
+					value="#{produtosBean.produto.categoria}"
+					converter="entityConverter">
+					<f:selectItem itemLabel="Selecione"></f:selectItem>
+					<f:selectItems value="#{produtosBean.todasCategorias}"
+						var="categoria" itemLabel="#{categoria.descricao}"
+						itemValue="#{categoria}">
+					</f:selectItems>
+				</p:selectOneMenu>
+				<p:commandButton value="Cadastrar" process="produto-dialog"
+					action="#{produtosBean.cadastrarProduto}"
+					update="produto-panel msgs-dialog"
+					oncomplete="if (!args.validationFailed) PF('produtoDialog').hide()"></p:commandButton>
+			</h:panelGrid>
+
+		</p:dialog>
+
+		<p:confirmDialog global="true">
+			<p:commandButton value="Sim" type="button"
+				styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+			<p:commandButton value="Não" type="button"
+				styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+		</p:confirmDialog>
+	</h:form>
+
+</h:body>
+</html>
